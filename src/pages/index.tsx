@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { getOptionsForVote } from "../utils/getRandomPokemon";
 import { trpc } from "../utils/trpc";
-
+import { inferQueryResponse } from "./api/trpc/[trpc]";
+import type React from "react";
 const btn =
   "inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500";
 
@@ -13,8 +14,6 @@ export default function Home() {
   const firstPokemon = trpc.useQuery(["get-pokemon-by-id", { id: first }]);
 
   const secondPokemon = trpc.useQuery(["get-pokemon-by-id", { id: second }]);
-
-  if (firstPokemon.isLoading || secondPokemon.isLoading) return null;
 
   const voteForRoundest = (selected: number) => {
     // todo: fire mutation to persist changes
@@ -28,35 +27,46 @@ export default function Home() {
       <div className="text-2xl text-center">Which Pokemon is rounder ?</div>
       <div className="p-2" />
       <div className="border rounded-lg p-8 flex justify-between items-center max-w-2xl">
-        <div className="w-64 h-64 flex flex-col items-center mr-10">
-          <img
-            src={firstPokemon.data?.sprites.front_default}
-            className="w-full"
-            alt="firstPokemon"
-          />
-          <div className="text-xl text-center pb-4 capitalize mt-[-2rem]">
-            {firstPokemon.data?.name}
-          </div>
-          <button className={btn} onClick={() => voteForRoundest(first)}>
-            Rounder
-          </button>
-        </div>
-        <div className="p-8">vs</div>
-        <div className="w-64 h-64 flex flex-col items-center ml-10">
-          <img
-            src={secondPokemon.data?.sprites.front_default}
-            className="w-full"
-            alt="secondPokemon"
-          />
-          <div className="text-xl text-center pb-4 capitalize mt-[-2rem]">
-            {firstPokemon.data?.name}
-          </div>
-          <button className={btn} onClick={() => voteForRoundest(second)}>
-            Rounder
-          </button>
-        </div>
+        {!firstPokemon.isLoading &&
+          !secondPokemon.isLoading &&
+          secondPokemon.data && (
+            <>
+              <PokemonListing
+                pokemon={firstPokemon.data}
+                vote={() => voteForRoundest(first)}
+              />
+              <div className="p-8">vs</div>
+              <PokemonListing
+                pokemon={secondPokemon.data}
+                vote={() => voteForRoundest(second)}
+              />
+            </>
+          )}
         <div className="p-2" />
       </div>
     </div>
   );
 }
+
+type PokemonFromServer = inferQueryResponse<"get-pokemon-by-id">;
+
+const PokemonListing: React.FC<{
+  pokemon: PokemonFromServer;
+  vote: () => void;
+}> = (props) => {
+  return (
+    <div className="flex flex-col items-center mr-10">
+      <img
+        src={props.pokemon.sprites.front_default}
+        className="w-64 h-64 "
+        alt="firstPokemon"
+      />
+      <div className="text-xl text-center pb-4 capitalize mt-[-2rem]">
+        {props.pokemon.name}
+      </div>
+      <button className={btn} onClick={() => props.vote()}>
+        Rounder
+      </button>
+    </div>
+  );
+};
