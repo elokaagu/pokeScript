@@ -41,6 +41,7 @@ export default function Home() {
       <div className="p-2" />
       <div className="border rounded-lg p-8 flex justify-between items-center max-w-2xl">
         {!firstPokemon.isLoading &&
+          firstPokemon.data &&
           !secondPokemon.isLoading &&
           secondPokemon.data && (
             <>
@@ -71,8 +72,8 @@ const PokemonListing: React.FC<{
     <div className="flex flex-col items-center mr-10">
       <img
         src={props.pokemon.sprites.front_default}
-        className="w-64 h-64 "
-        alt="firstPokemon"
+        className="w-64 h-64"
+        alt="pokemon"
       />
       <div className="text-xl text-center pb-4 capitalize mt-[-2rem]">
         {props.pokemon.name}
