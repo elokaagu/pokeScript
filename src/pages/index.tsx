@@ -69,12 +69,8 @@ const PokemonListing: React.FC<{
   vote: () => void;
 }> = (props) => {
   return (
-    <div className="flex flex-col items-center mr-10">
-      <img
-        src={props.pokemon.sprites.front_default}
-        className="w-64 h-64"
-        alt="pokemon"
-      />
+    <div className="flex flex-col items-center">
+      <img src={props.pokemon.sprites.front_default} className="w-64 w-64" />
       <div className="text-xl text-center pb-4 capitalize mt-[-2rem]">
         {props.pokemon.name}
       </div>
